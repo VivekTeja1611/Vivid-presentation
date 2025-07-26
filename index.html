@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obstacle Detection System | Complete Journey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .slide {
+            min-height: 100vh;
+            display: none;
+            padding: 20px;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-content {
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 0.5em;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            font-size: 2.5em;
+            margin-bottom: 1em;
+            color: #FFD700;
+        }
+
+        h3 {
+            font-size: 1.8em;
+            margin-bottom: 0.8em;
+            color: #87CEEB;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 215, 0, 0.3);
+            border-color: #FFD700;
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1.1em;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+            text-align: left;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .code-snippet {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+            font-family: 'Courier New', monospace;
+            border-left: 4px solid #FFD700;
+            overflow-x: auto;
+            font-size: 0.9em;
+        }
+
+        .explanation-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 30px 0;
+            justify-content: center;
+        }
+        
+        .code-column {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .explanation-column {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #12c2e9;
+        }
+        
+        .explanation-step {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+        }
+        
+        .explanation-step h4 {
+            color: #FFD700;
+            margin-bottom: 10px;
+        }
+        
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .tech-badge {
+            background: rgba(255, 215, 0, 0.2);
+            border: 2px solid #FFD700;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+
+        .flow-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .flow-box {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #FFD700;
+            min-width: 120px;
+            position: relative;
+        }
+
+        .flow-arrow {
+            font-size: 2em;
+            color: #FFD700;
+            margin: 0 10px;
+        }
+
+        .journey-timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 40px auto;
+            padding-left: 50px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 30px;
+            border-left: 3px solid #FFD700;
+            padding-left: 25px;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -10px;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #FFD700;
+        }
+
+        .timeline-date {
+            font-weight: bold;
+            color: #FFD700;
+            margin-bottom: 5px;
+        }
+
+        .timeline-content {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .problem-solution {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .problem {
+            flex: 1;
+            background: rgba(255, 107, 107, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #FF6B6B;
+        }
+
+        .solution {
+            flex: 1;
+            background: rgba(114, 219, 114, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #72DB72;
+        }
+
+        .problem h4, .solution h4 {
+            margin-bottom: 10px;
+        }
+
+        .learning-point {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .learning-icon {
+            font-size: 2em;
+            margin-right: 15px;
+            color: #FFD700;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5em; }
+            h2 { font-size: 2em; }
+            .content-grid { grid-template-columns: 1fr; }
+            .flow-diagram { flex-direction: column; }
+            .flow-arrow { transform: rotate(90deg); }
+            .explanation-container { flex-direction: column; }
+            .problem-solution { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Title -->
+    <div class="slide active">
+        <div class="slide-content">
+            <h1>Obstacle Detection System</h1>
+            <h3>From Concept to Implementation - A First-Year Journey</h3>
+            <div style="margin: 40px 0;">
+                <div class="tech-stack">
+                    <div class="tech-badge">YOLOv8</div>
+                    <div class="tech-badge">DeepSORT</div>
+                    <div class="tech-badge">MiDaS</div>
+                    <div class="tech-badge">PyTorch</div>
+                    <div class="tech-badge">IMU Sensors</div>
+                    <div class="tech-badge">PyQt5</div>
+                </div>
+                <p style="font-size: 1.2em; margin-top: 30px; max-width: 800px; margin: 20px auto;">
+                    A real-time assistive technology solution combining computer vision and sensor fusion - with all its challenges and learnings
+                </p>
+                <div style="margin-top: 30px; font-style: italic;">
+                    <p>By a passionate 1st year CSE student</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Project Motivation -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Why This Project?</h2>
+            
+            <div class="content-grid">
+                <div class="card" style="border-left: 4px solid #FF6B6B;">
+                    <h3>Initial Goal</h3>
+                    <p>Create something impactful that could help people with visual impairments navigate their environment safely.</p>
+                    <p>Wanted to combine:</p>
+                    <ul>
+                        <li>Real-time object detection</li>
+                        <li>Distance estimation</li>
+                        <li>Smart audio guidance</li>
+                    </ul>
+                </div>
+                
+                <div class="card" style="border-left: 4px solid #12c2e9;">
+                    <h3>Research Phase</h3>
+                    <p>Explored various computer vision approaches:</p>
+                    <ul>
+                        <li>Compared YOLO vs CNN models (speed/accuracy tradeoffs)</li>
+                        <li>Studied depth estimation techniques (stereo vs monocular)</li>
+                        <li>Investigated tracking algorithms</li>
+                        <li>Researched sensor fusion possibilities</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 30px; border-left: 4px solid #FFD700;">
+                <h3>Key Realizations</h3>
+                <div class="problem-solution">
+                    <div class="problem">
+                        <h4>Initial Assumptions</h4>
+                        <ul>
+                            <li>Thought depth estimation would be straightforward</li>
+                            <li>Expected IMU data would provide accurate position tracking</li>
+                            <li>Assumed phone sensor access would be simple</li>
+                        </ul>
+                    </div>
+                    <div class="solution">
+                        <h4>Reality Check</h4>
+                        <ul>
+                            <li>Monocular depth is relative without calibration</li>
+                            <li>IMU drift makes position tracking unreliable</li>
+                            <li>Android restrictions on sensor access</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: System Overview -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>System Architecture</h2>
+            
+            <div class="flow-diagram">
+                <div class="flow-box">📱 Phone Sensors<br>(TCP/UDP)</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">🖥️ IMU Processor</div>
+                <div class="flow-arrow">↙</div>
+                
+                <div class="flow-box">🎥 Camera Feed</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">🔍 YOLOv8</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">🆔 DeepSORT</div>
+                <div class="flow-arrow">↘</div>
+                
+                <div class="flow-box">📏 MiDaS Depth</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-box">🧩 Data Fusion</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">🗣️ Guidance</div>
+            </div>
+            
+            <div class="explanation-container">
+                <div class="explanation-column">
+                    <div class="explanation-step">
+                        <h4>Parallel Processing</h4>
+                        <p>The system runs multiple components simultaneously:</p>
+                        <ul>
+                            <li>Camera processing (30 FPS)</li>
+                            <li>IMU data collection (100Hz)</li>
+                            <li>Object detection and tracking</li>
+                            <li>Depth estimation</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="explanation-step">
+                        <h4>Implementation Challenges</h4>
+                        <ul>
+                            <li>Thread synchronization between components</li>
+                            <li>Latency in phone-to-PC data transfer</li>
+                            <li>Variable processing times for different modules</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="explanation-column">
+                    <div class="explanation-step">
+                        <h4>Tech Stack Evolution</h4>
+                        <p>Changed approaches multiple times:</p>
+                        <ol>
+                            <li>Started with Streamlit (too slow)</li>
+                            <li>Tried direct Android app (Play Store restrictions)</li>
+                            <li>Settled on PyQt5 for final interface</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="explanation-step">
+                        <h4>Data Flow</h4>
+                        <p>Information moves through three parallel pipelines that merge at the fusion module:</p>
+                        <ol>
+                            <li>Visual pipeline (YOLO → DeepSORT)</li>
+                            <li>Depth pipeline (MiDaS estimation)</li>
+                            <li>Sensor pipeline (IMU processing)</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: YOLOv8 Implementation -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Object Detection with YOLOv8</h2>
+            
+            <div class="explanation-container">
+                <div class="code-column">
+                    <div class="code-snippet">
+class YOLOv8Detector:
+    def __init__(self, model_path="yolov8n.pt"):
+        # Load model
+        self.model = YOLO(model_path)
+        self.model.to('cuda' if torch.cuda.is_available() else 'cpu')
+        self.classes = self.model.names
+        
+    def detect(self, frame):
+        # Run inference
+        results = self.model(frame, imgsz=640, conf=0.5)
+        
+        # Process results
+        detections = []
+        for result in results:
+            boxes = result.boxes.xyxy.cpu().numpy()
+            scores = result.boxes.conf.cpu().numpy()
+            class_ids = result.boxes.cls.cpu().numpy().astype(int)
+            
+            for box, score, cls_id in zip(boxes, scores, class_ids):
+                detections.append({
+                    'bbox': box,
+                    'score': score,
+                    'class_id': cls_id,
+                    'class_name': self.classes[cls_id]
+                })
+                
+        return detections
+                    </div>
+                </div>
+                
+                <div class="explanation-column">
+                    <div class="explanation-step">
+                        <h4>Why YOLO?</h4>
+                        <p>After researching alternatives (R-CNN, SSD, etc.):</p>
+                        <ul>
+                            <li><strong>Speed:</strong> 30+ FPS vs 5-10 FPS for R-CNN</li>
+                            <li><strong>Accuracy:</strong> Good enough for this use case</li>
+                            <li><strong>Single Stage:</strong> Simpler implementation</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="explanation-step">
+                        <h4>Challenges Faced</h4>
+                        <ul>
+                            <li>Initial confusion with bounding box formats (xywh vs xyxy)</li>
+                            <li>GPU memory issues with larger models</li>
+                            <li>Class imbalance in COCO dataset</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="explanation-step">
+                        <h4>Key Learnings</h4>
+                        <ul>
+                            <li>Importance of confidence threshold tuning</li>
+                            <li>How non-max suppression works internally</li>
+                            <li>Model quantization for mobile deployment</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: DeepSORT Tracking -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Object Tracking with DeepSORT</h2>
+            
+            <div class="explanation-container">
+                <div class="code-column">
+                    <div class="code-snippet">
+class DeepSortTracker:
+    def __init__(self):
+        # Feature extractor
+        self.encoder = FeatureExtractor()
+        
+        # Tracking parameters
+        self.max_age = 50  # frames
+        self.n_init = 3    # confirmations needed
+        self.metric = NearestNeighborDistanceMetric("cosine", 0.2)
+        
+        self.tracker = Tracker(
+            self.metric,
+            max_age=self.max_age,
+            n_init=self.n_init)
+    
+    def update(self, detections, frame):
+        # Extract features for each detection
+        features = []
+        for det in detections:
+            x1, y1, x2, y2 = map(int, det['bbox'])
+            crop = frame[y1:y2, x1:x2]
+            features.append(self.encoder(crop) if crop.size > 0 else np.zeros(512))
+        
+        # Convert to numpy arrays
+        bboxes = np.array([d['bbox'] for d in detections])
+        confidences = np.array([d['score'] for d in detections])
+        features = np.array(features)
+        
+        # Update tracker
+        self.tracker.predict()
+        self.tracker.update(bboxes, confidences, features)
+        
+        # Return active tracks
+        return [
+            {
+                'track_id': track.track_id,
+                'bbox': track.to_tlbr(),
+                'class_id': getattr(track, 'class_id', -1)
+            }
+            for track in self.tracker.tracks
+            if track.is_confirmed() and track.time_since_update <= 1
+        ]
+                    </div>
+                </div>
+                
+                <div class="explanation-column">
+                    <div class="explanation-step">
+                        <h4>Why DeepSORT?</h4>
+                        <p>Needed persistent object IDs across frames:</p>
+                        <ul>
+                            <li>Basic SORT had no appearance model</li>
+                            <li>FairMOT was too complex for our needs</li>
+                            <li>DeepSORT offered good balance</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="explanation-step">
+                        <h4>Implementation Issues</h4>
+                        <ul>
+                            <li>Feature extractor too slow initially (fixed with ResNet18)</li>
+                            <li>ID switches when objects crossed paths</li>
+                            <li>Tuning max_age and n_init parameters</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="explanation-step">
+                        <h4>Key Learnings</h4>
+                        <ul>
+                            <li>Kalman filter fundamentals</li>
+                            <li>Importance of motion and appearance cues</li>
+                            <li>Tradeoff between track longevity and false positives</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: MiDaS Depth Estimation -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Depth Estimation with MiDaS</h2>
+            
+            <div class="explanation-container">
+                <div class="code-column">
+                    <div class="code-snippet">
+class DepthEstimator:
+    def __init__(self, model_type="DPT_Large"):
+        # Load MiDaS model
+        self.model = torch.hub.load("intel-isl/MiDaS", model_type)
+        self.model.to(torch.device("cuda" if torch.cuda.is_available() else "cpu"))
+        self.model.eval()
+        
+        # Load transforms
+        self.transform = torch.hub.load("intel-isl/MiDaS", "transforms").dpt_transform
+    
+    def estimate(self, frame):
+        # Convert and preprocess
+        img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        input_tensor = self.transform(img).to(self.device)
+        
+        # Predict depth
+        with torch.no_grad():
+            prediction = self.model(input_tensor.unsqueeze(0))
+            prediction = torch.nn.functional.interpolate(
+                prediction.unsqueeze(1),
+                size=img.shape[:2],
+                mode="bicubic",
+                align_corners=False).squeeze()
+        
+        # Convert to numpy and normalize
+        depth_map = prediction.cpu().numpy()
+        return cv2.normalize(depth_map, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
+
+    def get_object_depth(self, depth_map, bbox):
+        x1, y1, x2, y2 = map(int, bbox)
+        obj_region = depth_map[y1:y2, x1:x2]
+        
+        if obj_region.size == 0:
+            return 0
+            
+        median_depth = np.median(obj_region)
+        
+        # Convert to relative distance
+        if median_depth > 200: return "very close"
+        elif median_depth > 150: return "close"
+        elif median_depth > 100: return "medium"
+        else: return "far"
+                    </div>
+                </div>
+                
+                <div class="explanation-column">
+                    <div class="explanation-step">
+                        <h4>Depth Estimation Challenges</h4>
+                        <p>Major hurdles faced:</p>
+                        <ul>
+                            <li>Monocular depth is inherently relative</li>
+                            <li>Attempted scaling with known object sizes (unreliable)</li>
+                            <li>Different lighting conditions affected results</li>
+                            <li>Performance issues with larger models</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="explanation-step">
+                        <h4>Workarounds Implemented</h4>
+                        <ul>
+                            <li>Switched to smaller MiDaS model</li>
+                            <li>Used relative depth categories instead of absolute values</li>
+                            <li>Added temporal smoothing</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="explanation-step">
+                        <h4>Key Learnings</h4>
+                        <ul>
+                            <li>Limitations of monocular depth estimation</li>
+                            <li>Importance of proper normalization</li>
+                            <li>How transformer-based models work for vision tasks</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: IMU Integration -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>IMU Sensor Integration</h2>
+            
+            <div class="explanation-container">
+                <div class="code-column">
+                    <div class="code-snippet">
+class IMUProcessor:
+    def __init__(self):
+        self.accel_bias = np.zeros(3)
+        self.gyro_bias = np.zeros(3)
+        self.calibrated = False
+        self.position = np.zeros(3)
+        self.velocity = np.zeros(3)
+        self.last_time = None
+    
+    def calibrate(self, samples=100):
+        print("Calibrating - keep device stationary")
+        samples = []
+        while len(samples) < 100:
+            if not self.imu_queue.empty():
+                samples.append(self.imu_queue.get())
+        
+        # Calculate biases
+        all_accel = np.array([s['accel'] for s in samples])
+        all_gyro = np.array([s['gyro'] for s in samples])
+        
+        self.accel_bias = np.mean(all_accel, axis=0)
+        self.gyro_bias = np.mean(all_gyro, axis=0)
+        self.calibrated = True
+    
+    def update(self):
+        if self.imu_queue.empty():
+            return None
+            
+        data = self.imu_queue.get()
+        
+        # Apply calibration
+        accel = data['accel'] - self.accel_bias
+        gyro = data['gyro'] - self.gyro_bias
+        
+        # Time tracking
+        current_time = time.time()
+        if self.last_time is None:
+            self.last_time = current_time
+            return None
+            
+        dt = current_time - self.last_time
+        self.last_time = current_time
+        
+        # Simple integration (with drift)
+        self.velocity += accel * dt
+        self.position += self.velocity * dt
+        
+        return {
+            'accel': accel,
+            'gyro': gyro,
+            'velocity': self.velocity.copy(),
+            'position': self.position.copy()
+        }
+                    </div>
+                </div>
+                
+                <div class="explanation-column">
+                    <div class="explanation-step">
+                        <h4>Major Challenges</h4>
+                        <p>Unexpected difficulties:</p>
+                        <ul>
+                            <li>Play Store banned direct sensor access apps</li>
+                            <li>Thermal throttling warnings on Android</li>
+                            <li>120ms latency in phone-to-PC data transfer</li>
+                            <li>Drift made position tracking useless after 10 seconds</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="explanation-step">
+                        <h4>Solutions Attempted</h4>
+                        <ul>
+                            <li>Tried UDP instead of TCP for lower latency</li>
+                            <li>Added calibration routine</li>
+                            <li>Implemented complementary filter for orientation</li>
+                            <li>Used PyQt5 instead of Streamlit for better real-time</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="explanation-step">
+                        <h4>Key Learnings</h4>
+                        <ul>
+                            <li>Sensor data characteristics and noise patterns</li>
+                            <li>Double integration pitfalls</li>
+                            <li>Android security restrictions</li>
+                            <li>Importance of sensor fusion</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Data Fusion -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Data Fusion & Guidance</h2>
+            
+            <div class="explanation-container">
+                <div class="code-column">
+                    <div class="code-snippet">
+class DataFusion:
+    def __init__(self):
+        self.tracks = {}
+        self.max_age = 2.0  # seconds
+    
+    def update(self, visual_tracks, depth_map, imu_data):
+        current_time = time.time()
+        risk_items = []
+        
+        # Update tracks with new data
+        for track in visual_tracks:
+            track_id = track['track_id']
+            
+            if track_id in self.tracks:
+                # Update existing track
+                self.tracks[track_id].update({
+                    'bbox': track['bbox'],
+                    'class': track['class_name'],
+                    'depth': self._get_depth(track['bbox'], depth_map),
+                    'last_seen': current_time
+                })
+            else:
+                # New track
+                self.tracks[track_id] = {
+                    'bbox': track['bbox'],
+                    'class': track['class_name'],
+                    'depth': self._get_depth(track['bbox'], depth_map),
+                    'first_seen': current_time,
+                    'last_seen': current_time
+                }
+        
+        # Remove stale tracks
+        self.tracks = {
+            k: v for k, v in self.tracks.items()
+            if current_time - v['last_seen'] < self.max_age
+        }
+        
+        # Assess risk for each track
+        for track_id, track in self.tracks.items():
+            risk = self._assess_risk(track, imu_data)
+            risk_items.append({
+                'track_id': track_id,
+                'class': track['class'],
+                'bbox': track['bbox'],
+                'depth': track['depth'],
+                'risk': risk
+            })
+        
+        return risk_items
+
+    def _assess_risk(self, track, imu_data):
+        # Simple risk assessment
+        depth_priority = {
+            "very close": 3,
+            "close": 2,
+            "medium": 1,
+            "far": 0
+        }
+        
+        class_priority = {
+            "person": 3, "car": 3,
+            "bicycle": 2, "dog": 2,
+            "chair": 1, "bench": 1
+        }
+        
+        risk_score = (depth_priority.get(track['depth'], 0) *
+                     class_priority.get(track['class'], 0))
+        
+        if risk_score >= 6: return "HIGH"
+        elif risk_score >= 3: return "MEDIUM"
+        else: return "LOW"
+                    </div>
+                </div>
+                
+                <div class="explanation-column">
+                    <div class="explanation-step">
+                        <h4>Fusion Challenges</h4>
+                        <p>Difficulties in combining data:</p>
+                        <ul>
+                            <li>Different coordinate systems</li>
+                            <li>Variable update rates</li>
+                            <li>Noisy and sometimes conflicting data</li>
+                            <li>Temporal alignment issues</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="explanation-step">
+                        <h4>Guidance System</h4>
+                        <p>Smart alert features:</p>
+                        <ul>
+                            <li>Priority-based queuing</li>
+                            <li>Cooldown period between alerts</li>
+                            <li>Relative position indication (left/center/right)</li>
+                            <li>Simple natural language generation</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="explanation-step">
+                        <h4>Key Learnings</h4>
+                        <ul>
+                            <li>Importance of data synchronization</li>
+                            <li>How to design multi-modal systems</li>
+                            <li>User experience considerations</li>
+                            <li>Tradeoffs in alert frequency vs annoyance</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Development Journey -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Project Timeline & Evolution</h2>
+            
+            <div class="journey-timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">Week 1-2</div>
+                    <div class="timeline-content">
+                        <h4>Research Phase</h4>
+                        <p>Explored computer vision models, depth estimation techniques, and sensor options. Settled on YOLOv8 + MiDaS + IMU approach.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">Week 3-4</div>
+                    <div class="timeline-content">
+                        <h4>Initial Implementation</h4>
+                        <p>Built basic YOLO detection pipeline. Attempted to integrate depth estimation. First attempts at Android sensor access.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">Week 5</div>
+                    <div class="timeline-content">
+                        <h4>Major Roadblocks</h4>
+                        <p>Discovered Play Store restrictions on sensor access. Depth scaling not working as expected. IMU drift issues became apparent.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">Week 6</div>
+                    <div class="timeline-content">
+                        <h4>Pivot Points</h4>
+                        <p>Switched from Streamlit to PyQt5. Changed from absolute to relative depth. Added DeepSORT for better tracking.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">Week 7</div>
+                    <div class="timeline-content">
+                        <h4>Final Integration</h4>
+                        <p>Combined all components. Added calibration routines. Implemented basic guidance system. Prepared for demonstration.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 40px;">
+                <h3>Major Turning Points</h3>
+                <div class="content-grid" style="margin-top: 20px;">
+                    <div class="card">
+                        <h4>Technical Pivots</h4>
+                        <ul>
+                            <li>Streamlit → PyQt5 for real-time</li>
+                            <li>Absolute → Relative depth</li>
+                            <li>Direct Android app → PC processing</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Conceptual Shifts</h4>
+                        <ul>
+                            <li>Perfect system → "Good enough" prototype</li>
+                            <li>Focus on core functionality first</li>
+                            <li>Accept limitations with clear explanations</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Challenges & Learnings -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Challenges & Key Learnings</h2>
+            
+            <div class="content-grid">
+                <div class="card" style="border-left: 4px solid #FF6B6B;">
+                    <h3>Technical Challenges</h3>
+                    <ul>
+                        <li><strong>Network Latency:</strong> 120ms delay in phone-to-laptop streaming</li>
+                        <li><strong>Depth Scaling:</strong> MiDaS provides only relative depth</li>
+                        <li><strong>IMU Drift:</strong> Position estimates diverge quickly</li>
+                        <li><strong>Thread Synchronization:</strong> Shared resource contention</li>
+                        <li><strong>Real-time Performance:</strong> Balancing speed vs accuracy</li>
+                        <li><strong>Android Restrictions:</strong> Play Store blocked sensor access</li>
+                    </ul>
+                </div>
+                
+                <div class="card" style="border-left: 4px solid #12c2e9;">
+                    <h3>Key Learnings</h3>
+                    <ul>
+                        <li>Practical implementation of YOLO and DeepSORT</li>
+                        <li>Kalman filtering fundamentals</li>
+                        <li>Thread synchronization techniques</li>
+                        <li>Sensor data characteristics and processing</li>
+                        <li>Real-world limitations of theoretical concepts</li>
+                        <li>Importance of iterative development</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div style="background: rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 30px; margin: 30px 0;">
+                <h3 style="color: #c471ed; margin-bottom: 20px;">Current System Status</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5em; color: #12c2e9;">✓</div>
+                        <div>Real-time detection (30 FPS)</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5em; color: #12c2e9;">✓</div>
+                        <div>Multi-object tracking</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5em; color: #f64f59;">⚠️</div>
+                        <div>Absolute depth</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5em; color: #f64f59;">⚠️</div>
+                        <div>IMU position accuracy</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5em; color: #12c2e9;">✓</div>
+                        <div>Basic guidance system</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: Future Improvements -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Future Improvements</h2>
+            
+            <div class="content-grid">
+                <div class="card" style="border-left: 4px solid #FF6B6B;">
+                    <h3>Technical Limitations</h3>
+                    <ul>
+                        <li><strong>Absolute Depth:</strong> Need stereo camera or LiDAR</li>
+                        <li><strong>Position Tracking:</strong> Combine with visual odometry</li>
+                        <li><strong>Latency:</strong> Edge deployment on phone</li>
+                        <li><strong>Power Consumption:</strong> Optimize model size</li>
+                    </ul>
+                </div>
+                
+                <div class="card" style="border-left: 4px solid #12c2e9;">
+                    <h3>Planned Enhancements</h3>
+                    <ul>
+                        <li>Implement visual-inertial odometry</li>
+                        <li>Add SLAM for better mapping</li>
+                        <li>Quantize models for mobile deployment</li>
+                        <li>Improve guidance with more natural language</li>
+                        <li>Add user customization options</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 30px; border-left: 4px solid #FFD700;">
+                <h3>Lessons for Next Time</h3>
+                <div class="problem-solution">
+                    <div class="problem">
+                        <h4>What Went Wrong</h4>
+                        <ul>
+                            <li>Underestimated sensor integration complexity</li>
+                            <li>Assumed depth estimation would be straightforward</li>
+                            <li>Didn't account for Android restrictions</li>
+                            <li>Overly ambitious scope for timeline</li>
+                        </ul>
+                    </div>
+                    <div class="solution">
+                        <h4>What I'd Do Differently</h4>
+                        <ul>
+                            <li>Start with simpler prototype</li>
+                            <li>Research platform limitations earlier</li>
+                            <li>Build more validation steps</li>
+                            <li>Plan for more iteration time</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Conclusion -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Conclusion & Takeaways</h2>
+            
+            <div style="max-width: 800px; margin: 0 auto;">
+                <div class="learning-point">
+                    <div class="learning-icon">💡</div>
+                    <div>
+                        <h4>Real-World Engineering is Messy</h4>
+                        <p>Theoretical concepts often don't translate directly to practice. Real systems have limitations and edge cases that aren't apparent until implementation.</p>
+                    </div>
+                </div>
+                
+                <div class="learning-point">
+                    <div class="learning-icon">🧠</div>
+                    <div>
+                        <h4>Research Before Implementation</h4>
+                        <p>Spending more time upfront understanding platform limitations and model capabilities would have saved weeks of rework.</p>
+                    </div>
+                </div>
+                
+                <div class="learning-point">
+                    <div class="learning-icon">🔄</div>
+                    <div>
+                        <h4>Iterative Development is Key</h4>
+                        <p>Building a minimal viable product first, then enhancing it, leads to better outcomes than trying to implement everything at once.</p>
+                    </div>
+                </div>
+                
+                <div class="learning-point">
+                    <div class="learning-icon">🎯</div>
+                    <div>
+                        <h4>Scope Appropriately</h4>
+                        <p>As a first-year student, this project was extremely ambitious. While I learned a lot, a narrower focus might have yielded more polished results.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 50px; text-align: center;">
+                <h3 style="color: #FFD700;">Final Thoughts</h3>
+                <p style="font-size: 1.2em; max-width: 800px; margin: 20px auto;">
+                    Despite the challenges and limitations, this project provided invaluable hands-on experience with real-world computer vision and sensor systems. 
+                    The lessons learned will inform all my future projects.
+                </p>
+                <div style="font-size: 3em; margin-top: 20px;">🚀</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-counter">
+        <span id="current-slide">1</span> / <span id="total-slides">12</span>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" onclick="previousSlide()">← Previous</button>
+        <button class="nav-btn" onclick="nextSlide()">Next →</button>
+        <button class="nav-btn" onclick="toggleFullscreen()">📺 Fullscreen</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                previousSlide();
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullscreen();
+            }
+        });
+
+        // Add touch support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            if (touchStartX - touchEndX > 50) {
+                nextSlide();
+            } else if (touchEndX - touchStartX > 50) {
+                previousSlide();
+            }
+        });
+    </script>
+</body>
+</html>
