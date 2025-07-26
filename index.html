@@ -702,6 +702,112 @@ class DepthEstimator:
         </div>
     </div>
 
+
+   <!-- Slide 7: IMU Integration -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Network Server</h2>
+            
+            <div class="explanation-container">
+                <div class="code-column">
+                    <div class="code-snippet">
+<pre> 
+    class NetworkServer:
+    initialize TCP and UDP ports
+    initialize server state and IMU data queue
+    initialize sockets and client list
+
+    function start_servers():
+        set running = True
+        start TCP server in separate thread
+        start UDP server in separate thread
+        print server start info
+
+    function _tcp_server():
+        create and bind TCP socket
+        listen for incoming connections
+        while running:
+            accept new client
+            start thread to handle client
+        on shutdown, close TCP socket
+
+    function _handle_tcp_client(client_socket, address):
+        while running:
+            receive data from client
+            if no data, break
+            try:
+                parse data as JSON
+                process sensor data
+                send "OK"
+            except parse error:
+                send "ERROR"
+        close client socket
+
+    function _udp_server():
+        create and bind UDP socket
+        while running:
+            receive data from client
+            try:
+                parse data as JSON
+                process sensor data
+            except parse error:
+                continue
+        on shutdown, close UDP socket
+
+    function _process_sensor_data(data):
+        extract timestamp, accel, gyro from JSON
+        create IMUData object
+        add IMUData to queue
+
+    function get_imu_data():
+        collect all IMUData from queue and return as list
+
+    function stop_servers():
+        set running = False
+        close TCP and UDP sockets if open
+
+            </pre>  
+                    </div>
+                </div>
+                
+                <div class="explanation-column">
+                   <div class="explanation-step">
+    <h4>Unexpected Difficulties</h4>
+    <ul>
+        <li>TCP data chunks often split JSON mid-message, causing decoding errors</li>
+        <li>UDP packets occasionally dropped, leading to inconsistent IMU streams</li>
+        <li>Multiple threads created scalability issues with many TCP clients</li>
+        <li>Debugging network latency issues without proper instrumentation was challenging</li>
+    </ul>
+</div>
+
+<div class="explanation-step">
+    <h4>Solutions Attempted</h4>
+    <ul>
+        <li>Used UDP for high-frequency data and TCP for control messages</li>
+        <li>Buffered incoming TCP data and applied manual packet framing</li>
+        <li>Implemented timestamp checks to detect and discard duplicate or stale packets</li>
+        <li>Switched from raw sockets to higher-level abstractions for easier debugging</li>
+    </ul>
+</div>
+
+<div class="explanation-step">
+    <h4>Key Learnings</h4>
+    <ul>
+        <li>TCP is not ideal for real-time sensor streams without message framing</li>
+        <li>UDP is faster but unreliable—must handle packet loss manually</li>
+        <li>Thread-per-client model can bottleneck; async I/O scales better</li>
+        <li>Robust error handling and logging are essential for network applications</li>
+    </ul>
+</div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+   
+    
+
     <!-- Slide 7: IMU Integration -->
     <div class="slide">
         <div class="slide-content">
@@ -712,58 +818,63 @@ class DepthEstimator:
                     <div class="code-snippet">
 <pre>                      
 class IMUProcessor:
-    def __init__(self):
-        self.accel_bias = np.zeros(3)
-        self.gyro_bias = np.zeros(3)
-        self.calibrated = False
-        self.position = np.zeros(3)
-        self.velocity = np.zeros(3)
-        self.last_time = None
-    
-    def calibrate(self, samples=100):
-        print("Calibrating - keep device stationary")
-        samples = []
-        while len(samples) < 100:
-            if not self.imu_queue.empty():
-                samples.append(self.imu_queue.get())
-        
-        # Calculate biases
-        all_accel = np.array([s['accel'] for s in samples])
-        all_gyro = np.array([s['gyro'] for s in samples])
-        
-        self.accel_bias = np.mean(all_accel, axis=0)
-        self.gyro_bias = np.mean(all_gyro, axis=0)
-        self.calibrated = True
-    
-    def update(self):
-        if self.imu_queue.empty():
-            return None
-            
-        data = self.imu_queue.get()
-        
-        # Apply calibration
-        accel = data['accel'] - self.accel_bias
-        gyro = data['gyro'] - self.gyro_bias
-        
-        # Time tracking
-        current_time = time.time()
-        if self.last_time is None:
-            self.last_time = current_time
-            return None
-            
-        dt = current_time - self.last_time
-        self.last_time = current_time
-        
-        # Simple integration (with drift)
-        self.velocity += accel * dt
-        self.position += self.velocity * dt
-        
-        return {
-            'accel': accel,
-            'gyro': gyro,
-            'velocity': self.velocity.copy(),
-            'position': self.position.copy()
-        }
+    initialize motion state (position, velocity, orientation, etc.)
+    initialize calibration manager and filters
+    initialize bias and buffers
+
+    function set_calibration_mode(enable):
+        if enable:
+            start collecting calibration data
+        else:
+            stop calibration
+
+    function add_imu_data(imu_data):
+        if in calibration mode:
+            collect calibration data
+            return
+
+        if calibration complete:
+            apply calibration to imu_data
+
+        extract accel and gyro from imu_data
+        if still collecting bias:
+            update accel/gyro bias
+            return
+
+        subtract bias from accel and gyro
+        store corrected accel and gyro in buffers
+
+        if not enough data in buffer:
+            return
+
+        apply low-pass filter to accel
+        update orientation using gyro
+        rotate accel to world frame and remove gravity
+
+        update motion state:
+            acceleration → velocity → position
+            apply damping to velocity
+
+        update confidence based on variance in recent accel data
+
+    function _apply_filter(buffer):
+        apply low-pass filter to buffer and return latest value
+
+    function _update_orientation(gyro):
+        convert gyro to quaternion rotation
+        apply to current orientation
+        normalize orientation
+
+    function _quaternion_multiply(q1, q2):
+        return product of two quaternions
+
+    function _rotate_vector(vector, quaternion):
+        rotate vector using quaternion
+
+    function _update_confidence():
+        calculate variance in recent accel
+        map variance to confidence score
+
             </pre>  
                     </div>
                 </div>
@@ -960,7 +1071,7 @@ class DataFusion:
                 
                 <div class="timeline-item">
                     <div class="timeline-dot"></div>
-                    <div class="timeline-date">Week 6</div>
+                    <div class="timeline-date"></div>
                     <div class="timeline-content">
                         <h4>Pivot Points</h4>
                         <p>Switched from Streamlit to PyQt5. Changed from absolute to relative depth. Added DeepSORT for better tracking.</p>
@@ -969,7 +1080,7 @@ class DataFusion:
                 
                 <div class="timeline-item">
                     <div class="timeline-dot"></div>
-                    <div class="timeline-date">Week 7</div>
+                    <div class="timeline-date"></div>
                     <div class="timeline-content">
                         <h4>Final Integration</h4>
                         <p>Combined all components. Added calibration routines. Implemented basic guidance system.</p>
