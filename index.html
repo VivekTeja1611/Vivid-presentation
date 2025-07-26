@@ -461,7 +461,7 @@
                 <div class="code-column">
                     <div class="code-snippet">
 <pre>
-    class YOLOv8Detector:
+ class YOLOv8Detector:
     def __init__(self, model_path="yolov8n.pt"):
         # Load model
         self.model = YOLO(model_path)
@@ -532,7 +532,8 @@
             
             <div class="explanation-container">
                 <div class="code-column">
-                    <div class="code-snippet">
+                <div class="code-snippet">
+<pre>                      
 class DeepSortTracker:
     def __init__(self):
         # Feature extractor
@@ -575,6 +576,7 @@ class DeepSortTracker:
             for track in self.tracker.tracks
             if track.is_confirmed() and track.time_since_update <= 1
         ]
+     </pre>            
                     </div>
                 </div>
                 
@@ -585,14 +587,13 @@ class DeepSortTracker:
                         <ul>
                             <li>Basic SORT had no appearance model</li>
                             <li>FairMOT was too complex for our needs</li>
-                            <li>DeepSORT offered good balance</li>
+                            <li>DeepSORT offered good balance between accuracy and computation</li>
                         </ul>
                     </div>
                     
                     <div class="explanation-step">
                         <h4>Implementation Issues</h4>
                         <ul>
-                            <li>Feature extractor too slow initially (fixed with ResNet18)</li>
                             <li>ID switches when objects crossed paths</li>
                             <li>Tuning max_age and n_init parameters</li>
                         </ul>
@@ -619,6 +620,7 @@ class DeepSortTracker:
             <div class="explanation-container">
                 <div class="code-column">
                     <div class="code-snippet">
+<pre>                       
 class DepthEstimator:
     def __init__(self, model_type="DPT_Large"):
         # Load MiDaS model
@@ -661,6 +663,7 @@ class DepthEstimator:
         elif median_depth > 150: return "close"
         elif median_depth > 100: return "medium"
         else: return "far"
+    </pre> 
                     </div>
                 </div>
                 
@@ -673,6 +676,7 @@ class DepthEstimator:
                             <li>Attempted scaling with known object sizes (unreliable)</li>
                             <li>Different lighting conditions affected results</li>
                             <li>Performance issues with larger models</li>
+                            <li> problematic when we calculate velcity cause it's inn a different scale than dx ,dy</li>
                         </ul>
                     </div>
                     
@@ -681,7 +685,7 @@ class DepthEstimator:
                         <ul>
                             <li>Switched to smaller MiDaS model</li>
                             <li>Used relative depth categories instead of absolute values</li>
-                            <li>Added temporal smoothing</li>
+                            <li>Added temporal smoothing(to reduce high fluctuations</li>
                         </ul>
                     </div>
                     
@@ -706,6 +710,7 @@ class DepthEstimator:
             <div class="explanation-container">
                 <div class="code-column">
                     <div class="code-snippet">
+<pre>                      
 class IMUProcessor:
     def __init__(self):
         self.accel_bias = np.zeros(3)
@@ -759,6 +764,7 @@ class IMUProcessor:
             'velocity': self.velocity.copy(),
             'position': self.position.copy()
         }
+            </pre>  
                     </div>
                 </div>
                 
@@ -768,7 +774,7 @@ class IMUProcessor:
                         <p>Unexpected difficulties:</p>
                         <ul>
                             <li>Play Store banned direct sensor access apps</li>
-                            <li>Thermal throttling warnings on Android</li>
+                            <li>Thermal throttling warnings on Android when tried to build own kotlin app</li>
                             <li>120ms latency in phone-to-PC data transfer</li>
                             <li>Drift made position tracking useless after 10 seconds</li>
                         </ul>
@@ -806,6 +812,7 @@ class IMUProcessor:
             <div class="explanation-container">
                 <div class="code-column">
                     <div class="code-snippet">
+<pre>                     
 class DataFusion:
     def __init__(self):
         self.tracks = {}
@@ -877,6 +884,7 @@ class DataFusion:
         if risk_score >= 6: return "HIGH"
         elif risk_score >= 3: return "MEDIUM"
         else: return "LOW"
+             </pre>      
                     </div>
                 </div>
                 
@@ -920,12 +928,12 @@ class DataFusion:
     <!-- Slide 9: Development Journey -->
     <div class="slide">
         <div class="slide-content">
-            <h2>Project Timeline & Evolution</h2>
+            <h2>Project Evolution</h2>
             
             <div class="journey-timeline">
                 <div class="timeline-item">
                     <div class="timeline-dot"></div>
-                    <div class="timeline-date">Week 1-2</div>
+                    <div class="timeline-date"></div>
                     <div class="timeline-content">
                         <h4>Research Phase</h4>
                         <p>Explored computer vision models, depth estimation techniques, and sensor options. Settled on YOLOv8 + MiDaS + IMU approach.</p>
@@ -934,7 +942,7 @@ class DataFusion:
                 
                 <div class="timeline-item">
                     <div class="timeline-dot"></div>
-                    <div class="timeline-date">Week 3-4</div>
+                    <div class="timeline-date"></div>
                     <div class="timeline-content">
                         <h4>Initial Implementation</h4>
                         <p>Built basic YOLO detection pipeline. Attempted to integrate depth estimation. First attempts at Android sensor access.</p>
@@ -943,7 +951,7 @@ class DataFusion:
                 
                 <div class="timeline-item">
                     <div class="timeline-dot"></div>
-                    <div class="timeline-date">Week 5</div>
+                    <div class="timeline-date"></div>
                     <div class="timeline-content">
                         <h4>Major Roadblocks</h4>
                         <p>Discovered Play Store restrictions on sensor access. Depth scaling not working as expected. IMU drift issues became apparent.</p>
@@ -964,7 +972,7 @@ class DataFusion:
                     <div class="timeline-date">Week 7</div>
                     <div class="timeline-content">
                         <h4>Final Integration</h4>
-                        <p>Combined all components. Added calibration routines. Implemented basic guidance system. Prepared for demonstration.</p>
+                        <p>Combined all components. Added calibration routines. Implemented basic guidance system.</p>
                     </div>
                 </div>
             </div>
